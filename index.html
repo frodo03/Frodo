@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Il Mio Diario - Federico</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MioDiario">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4352/4352937.png">
+
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --accent-color: #007aff;
+            --accent-light: #e1f0ff;
+            --success-color: #34c759;
+            --danger-color: #ff3b30;
+            --border-color: #e2e8f0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            padding-top: 40px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* SCHERMATA HOME (DASHBOARD) */
+        .dashboard-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 10px;
+        }
+        .welcome-avatar {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+        .welcome-text {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+        .date-text {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-weight: 500;
+        }
+        .menu-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 320px;
+        }
+        .menu-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 18px 20px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-color);
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+        .menu-btn:active {
+            transform: scale(0.98);
+            background: #f8fafc;
+        }
+        .menu-btn .icon {
+            font-size: 20px;
+        }
+
+        /* CLASSIFICA OBIETTIVI MANCATI SULLA HOME */
+        .leaderboard-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 320px;
+            margin-top: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            box-sizing: border-box;
+            text-align: left;
+        }
+        .leaderboard-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+        .leaderboard-count {
+            background: #fee2e2;
+            color: var(--danger-color);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* BOTTONE TORNA ALLA HOME */
+        .back-home-container {
+            margin-bottom: 20px;
+        }
+        .back-home-btn {
+            background: transparent;
+            border: none;
+            color: var(--accent-color);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* SEZIONI APPLICAZIONE */
+        .app-view {
+            display: none;
+        }
+        
+        /* Navigazione Settimana */
+        .week-navigation { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; min-height: 35px; }
+        .header { font-size: 20px; font-weight: 700; text-align: center; flex: 1; letter-spacing: -0.5px; }
+        .nav-btn { background: #e2e8f0; border: none; padding: 8px 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: var(--text-color); transition: background 0.2s; }
+        .nav-btn:active { background: #cbd5e1; }
+        
+        /* Barra dei Progressi */
+        .progress-container { background: var(--card-bg); padding: 14px; border-radius: 14px; margin-bottom: 20px; font-size: 13px; color: var(--text-muted); border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .progress-bar-bg { background: #e2e8f0; height: 8px; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+        .progress-bar-fill { background: var(--success-color); height: 100%; width: 0%; transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        /* Slider Giorni */
+        .scroll-container { display: flex; overflow-x: auto; gap: 10px; padding-bottom: 12px; margin-bottom: 15px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .scroll-container::-webkit-scrollbar { display: none; }
+        
+        .selector-card { flex: 0 0 75px; background: var(--card-bg); padding: 12px 0; text-align: center; border-radius: 12px; font-size: 12px; cursor: pointer; border: 1px solid var(--border-color); line-height: 1.5; color: var(--text-muted); box-shadow: 0 1px 3px rgba(0,0,0,0.01); transition: all 0.2s; }
+        .selector-card.active { border-color: var(--accent-color); background: var(--accent-light); color: var(--accent-color); font-weight: bold; transform: scale(1.02); }
+        .selector-card.today { background: #e2e8f0; color: var(--text-color); font-weight: bold; }
+        .selector-card.today.active { background: var(--accent-light); color: var(--accent-color); }
+
+        /* Titoli Sezioni */
+        .section-title { font-size: 15px; font-weight: 700; margin: 25px 0 10px 5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Lista Obiettivi */
+        .list { background: var(--card-bg); border-radius: 14px; padding: 0 16px; margin-bottom: 20px; border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.01); }
+        .item { display: flex; flex-direction: column; padding: 16px 0; border-bottom: 1px solid var(--border-color); transition: all 0.2s; }
+        .item:last-child { border-bottom: none; }
+        .item-main { display: flex; align-items: center; }
+        
+        /* CHECKBOX A TRE STATI */
+        .checkbox { width: 24px; height: 24px; border: 2px solid #cbd5e1; border-radius: 50%; margin-right: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; background: white; }
+        .checkbox.completed { background: var(--success-color); border-color: var(--success-color); }
+        .checkbox.completed::after { content: "✓"; color: white; font-size: 14px; font-weight: bold; }
+        .checkbox.failed { background: var(--danger-color); border-color: var(--danger-color); }
+        .checkbox.failed::after { content: "✗"; color: white; font-size: 14px; font-weight: bold; }
+        
+        .item-text { flex: 1; font-size: 16px; font-weight: 500; transition: color 0.2s; }
+        .item-text.done { color: var(--text-muted); font-weight: 400; text-decoration: line-through; }
+        .item-text.failed-text { color: var(--danger-color); font-weight: 400; text-decoration: line-through; }
+        
+        /* Pannello Note Espandibile */
+        .action-panel { display: none; margin-top: 12px; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .item.open .action-panel { display: block; }
+        .notes-area { width: 100%; border: 1px solid var(--border-color); resize: none; font-size: 14px; color: var(--text-color); font-family: inherit; background: white; padding: 10px; border-radius: 8px; box-sizing: border-box; margin-bottom: 10px; }
+        .notes-area:focus { outline: none; border-color: var(--accent-color); }
+        
+        .btn-group { display: flex; gap: 8px; }
+        .action-btn { flex: 1; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .action-btn.move { background: var(--accent-light); color: var(--accent-color); }
+        .action-btn.move:active { background: #cce4ff; }
+        .action-btn.delete { background: #fee2e2; color: var(--danger-color); }
+        .action-btn.delete:active { background: #fecaca; }
+
+        /* Struttura Ricordi */
+        .diary-card { background: var(--card-bg); border-radius: 14px; padding: 16px; margin-bottom: 40px; box-sizing: border-box; border: 1px solid var(--border-color); box-shadow: 0 4px 6px rgba(0,0,0,0.01); }
+        .saved-entries-list { display: flex; flex-direction: column; gap: 14px; }
+        .saved-entry-card { background: #f8fafc; border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.01); text-align: left; }
+        .saved-entry-card img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 8px; margin-top: 10px; display: block; cursor: pointer; transition: opacity 0.2s; }
+        .saved-entry-card img:active { opacity: 0.8; }
+        .saved-entry-text { font-size: 15px; line-height: 1.5; white-space: pre-wrap; color: var(--text-color); padding-right: 25px; }
+        .delete-entry-btn { position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: #94a3b8; font-size: 14px; cursor: pointer; padding: 2px; transition: color 0.2s; }
+        .delete-entry-btn:active { color: var(--danger-color); }
+
+        /* Elementi Modale Unico */
+        .type-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+        .type-btn { flex: 1; text-align: center; padding: 12px 0; border: 2px solid var(--border-color); border-radius: 10px; font-size: 15px; font-weight: 600; color: var(--text-muted); cursor: pointer; background: white; transition: all 0.2s; }
+        .type-btn.active { border-color: var(--accent-color); background: var(--accent-light); color: var(--accent-color); }
+        
+        .diary-input { width: 100%; min-height: 100px; border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; font-size: 15px; font-family: inherit; color: var(--text-color); resize: none; box-sizing: border-box; margin-bottom: 14px; background: #f8fafc; }
+        .diary-input:focus { outline: none; border-color: var(--accent-color); background: white; }
+        
+        .media-box { position: relative; width: 100%; max-height: 180px; border-radius: 10px; overflow: hidden; margin-bottom: 14px; display: none; background: #f8fafc; border: 1px solid var(--border-color); }
+        .media-box img { width: 100%; height: 100%; object-fit: cover; max-height: 180px; }
+        .delete-img-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        .modal-diary-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; width: 100%; }
+        .file-label { background: #e2e8f0; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; color: var(--text-color); }
+        .file-label input { display: none; }
+
+        /* Pulsante + Flottante */
+        .add-btn { position: fixed; bottom: 30px; right: 30px; background: var(--accent-color); color: white; width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 10px rgba(0,122,255,0.3); cursor: pointer; z-index: 10; transition: transform 0.2s; }
+        .add-btn:active { transform: scale(0.92); }
+
+        /* Modali / Popups */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); z-index: 100; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 24px; border-radius: 18px; width: 90%; max-width: 380px; box-sizing: border-box; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+        .modal-input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 16px; box-sizing: border-box; margin-bottom: 18px; background: #f8fafc; color: var(--text-color); }
+        .modal-input:focus { outline: none; border-color: var(--accent-color); }
+        
+        .days-select-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 25px; }
+        .day-option { background: #f1f5f9; padding: 10px 0; text-align: center; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid transparent; color: var(--text-muted); transition: all 0.2s; }
+        .day-option.selected { background: var(--accent-light); border-color: var(--accent-color); color: var(--accent-color); }
+        
+        .modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
+        .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .modal-btn.confirm { background: var(--accent-color); color: white; }
+        .modal-btn.confirm:active { background: #005ecb; }
+        .modal-btn.cancel { background: #e2e8f0; color: var(--text-color); }
+        .modal-btn.cancel:active { background: #cbd5e1; }
+
+        /* Visore Foto Lightbox */
+        .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; }
+        .lightbox img { max-width: 95%; max-height: 85%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); animation: zoomIn 0.25s ease-out; }
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <!-- VISTA 1: SCHERMATA HOME (DASHBOARD) -->
+    <div id="view-home" class="dashboard-view">
+        <div class="welcome-avatar">☀️</div>
+        <div class="welcome-text">Ciao Federico</div>
+        <div class="date-text" id="live-date">Oggi</div>
+        
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="navigateTo('settimana')">
+                <span>🎯 Obiettivi Settimanali</span>
+                <span class="icon">➔</span>
+            </button>
+            <button class="menu-btn" onclick="navigateTo('annuale')">
+                <span>📅 Obiettivi Annuali</span>
+                <span class="icon">➔</span>
+            </button>
+            <button class="menu-btn" onclick="navigateTo('ricordi')">
+                <span>📖 I Miei Ricordi</span>
+                <span class="icon">➔</span>
+            </button>
+        </div>
+
+        <!-- SEZIONE CLASSIFICA OBIETTIVI MANCATI -->
+        <div class="leaderboard-card" id="home-leaderboard">
+            <div class="leaderboard-title">⚠️ Classifica Obiettivi Falliti</div>
+            <div id="leaderboard-list"></div>
+        </div>
+    </div>
+
+
+    <!-- VISTA 2: SEZIONE SETTIMANALE / GIORNALIERA -->
+    <div id="view-settimana" class="app-view">
+        <div class="back-home-container">
+            <button class="back-home-btn" onclick="navigateTo('home')">🏠 Home</button>
+        </div>
+
+        <div class="week-navigation">
+            <button class="nav-btn" id="prev-week" onclick="changeWeek(-1)">&lt;</button>
+            <div class="header" id="main-title">Caricamento...</div>
+            <button class="nav-btn" id="next-week" onclick="changeWeek(1)">&gt;</button>
+        </div>
+
+        <div class="progress-container" id="week-progress-box">
+            <div id="progress-text">Progressi settimana: 0 / 0 completati (0%)</div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="scroll-container" id="selector-container-week"></div>
+        <div class="section-title" id="list-title-week">Obiettivi</div>
+        <div class="list" id="goals-list-week"></div>
+    </div>
+
+
+    <!-- VISTA 3: SEZIONE ANNUALE -->
+    <div id="view-annuale" class="app-view">
+        <div class="back-home-container">
+            <button class="back-home-btn" onclick="navigateTo('home')">🏠 Home</button>
+        </div>
+        
+        <div class="header" style="margin-bottom: 20px;">Obiettivi Annuali</div>
+        <div class="scroll-container" id="selector-container-year"></div>
+        <div class="section-title" id="list-title-year">Obiettivi</div>
+        <div class="list" id="goals-list-year"></div>
+    </div>
+
+
+    <!-- VISTA 4: SEZIONE RICORDI -->
+    <div id="view-ricordi" class="app-view">
+        <div class="back-home-container">
+            <button class="back-home-btn" onclick="navigateTo('home')">🏠 Home</button>
+        </div>
+
+        <div class="week-navigation">
+            <button class="nav-btn" id="prev-week-diary" onclick="changeWeek(-1)">&lt;</button>
+            <div class="header" id="main-title-diary">Caricamento...</div>
+            <button class="nav-btn" id="next-week-diary" onclick="changeWeek(1)">&gt;</button>
+        </div>
+
+        <div class="scroll-container" id="selector-container-diary"></div>
+        
+        <div class="section-title" id="diary-section-title">Ricordi del giorno</div>
+        <div class="diary-card">
+            <div class="saved-entries-list" id="saved-entries-container"></div>
+        </div>
+    </div>
+
+
+    <!-- TASTO FLOTTANTE + -->
+    <div class="add-btn" id="floating-add-btn" style="display:none;" onclick="openCombinedModal()">+</div>
+
+
+    <!-- MODALE UNICO INTELLIGENTE -->
+    <div class="modal" id="combined-modal">
+        <div class="modal-content">
+            <div class="modal-title">Cosa vuoi aggiungere?</div>
+            
+            <div class="type-selector" id="modal-type-selector-wrapper">
+                <div class="type-btn active" id="type-btn-goal" onclick="setCombinedType('goal')">🎯 Obiettivo</div>
+                <div class="type-btn" id="type-btn-diary" onclick="setCombinedType('diary')">📖 Ricordo</div>
+            </div>
+
+            <!-- SOTTO-MODULO OBIETTIVO -->
+            <div id="sub-form-goal">
+                <input type="text" class="modal-input" id="goal-input-text" placeholder="Cosa vuoi fare?">
+                <div id="modal-days-section">
+                    <div style="font-size: 13px; margin-bottom: 10px; color: var(--text-muted);">In quali giorni inserirlo?</div>
+                    <div class="days-select-grid">
+                        <div class="day-option" onclick="toggleModalDay('all', this)">Sett.</div>
+                        <div class="day-option" onclick="toggleModalDay(1, this)">Lun</div>
+                        <div class="day-option" onclick="toggleModalDay(2, this)">Mar</div>
+                        <div class="day-option" onclick="toggleModalDay(3, this)">Mer</div>
+                        <div class="day-option" onclick="toggleModalDay(4, this)">Gio</div>
+                        <div class="day-option" onclick="toggleModalDay(5, this)">Ven</div>
+                        <div class="day-option" onclick="toggleModalDay(6, this)">Sab</div>
+                        <div class="day-option" onclick="toggleModalDay(7, this)">Dom</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SOTTO-MODULO RICORDO -->
+            <div id="sub-form-diary" style="display: none;">
+                <div class="media-box" id="diary-media-box">
+                    <img id="diary-img-preview" src="" alt="Anteprima">
+                    <button class="delete-img-btn" onclick="removeDiaryPhoto()">✕</button>
+                </div>
+                <textarea class="diary-input" id="diary-text-input" placeholder="Com'è andata oggi? Inserisci un pensiero..."></textarea>
+                <div class="modal-diary-footer">
+                    <label class="file-label">
+                        📷 Aggiungi Foto
+                        <input type="file" id="file-photo-input" accept="image/*" onchange="handlePhotoUpload(event)">
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeCombinedModal()">Annulla</button>
+                <button class="modal-btn confirm" onclick="confirmCombinedSave()">Salva</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- POPUP SPOSTAMENTO OBIETTIVI -->
+    <div class="modal" id="move-modal">
+        <div class="modal-content">
+            <div class="modal-title">Sposta obiettivo</div>
+            <div class="days-select-grid">
+                <div class="day-option move-opt" onclick="selectMoveTarget('all', this)">Sett.</div>
+                <div class="day-option move-opt" onclick="selectMoveTarget(1, this)">Lun</div>
+                <div class="day-option move-opt" onclick="selectMoveTarget(2, this)">Mar</div>
+                <div class="day-option move-opt" onclick="selectMoveTarget(3, this)">Mer</div>
+                <div class="day-option move-opt" onclick="selectMoveTarget(4, this)">Gio</div>
+                <div class="day-option move-opt" onclick="selectMoveTarget(5, this)">Ven</div>
+                <div class="day-option move-opt" onclick="selectMoveTarget(6, this)">Sab</div>
+                <div class="day-option move-opt" onclick="selectMoveTarget(7, this)">Dom</div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeMoveModal()">Annulla</button>
+                <button class="modal-btn confirm" onclick="confirmMoveGoal()">Sposta</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- LIGHTBOX FOTO -->
+    <div class="lightbox" id="photo-lightbox" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Foto Ingrandita">
+    </div>
+
+
+    <script>
+        let goals = JSON.parse(localStorage.getItem('goals_v9_hybrid')) || [];
+        let diaryEntries = JSON.parse(localStorage.getItem('diary_v9_hybrid')) || [];
+        
+        // ----------------- CONFIGURAZIONE CALENDARIO FISSO -----------------
+        const START_DATE = new Date(2026, 6, 6); // 6 Luglio 2026
+        
+        let currentView = 'home';
+        
+        function getWeeksSinceStart(date) {
+            const diffTime = date.getTime() - START_DATE.getTime();
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+            return Math.max(0, Math.floor(diffDays / 7));
+        }
+
+        function getTodayWeekday() {
+            const today = new Date();
+            const day = today.getDay();
+            return day === 0 ? 7 : day;
+        }
+
+        const todayDate = new Date();
+        let currentWeekOffset = getWeeksSinceStart(todayDate);
+        let selectedDay = getTodayWeekday();
+        let selectedYear = todayDate.getFullYear();
+
+        const daysNames = ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"];
+        const fullDaysNames = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"];
+        const monthsNames = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
+        const fullMonthsNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+        
+        const yearsList = [];
+        for (let y = 2026; y <= 2040; y++) { yearsList.push(y); }
+
+        let modalSelectedTargets = [];
+        let goalIdToMove = null;
+        let selectedMoveTarget = null;
+        let tempPhotoBase64 = "";
+        let combinedModalType = 'goal';
+
+        function setupLiveDate() {
+            const today = new Date();
+            const dayName = fullDaysNames[today.getDay() === 0 ? 6 : today.getDay() - 1];
+            const monthName = fullMonthsNames[today.getMonth()];
+            document.getElementById('live-date').innerText = `${dayName} ${today.getDate()} ${monthName} ${today.getFullYear()}`;
+        }
+
+        function save() {
+            localStorage.setItem('goals_v9_hybrid', JSON.stringify(goals));
+            render();
+        }
+
+        function navigateTo(view) {
+            currentView = view;
+            
+            document.getElementById('view-home').style.display = 'none';
+            document.getElementById('view-settimana').style.display = 'none';
+            document.getElementById('view-annuale').style.display = 'none';
+            document.getElementById('view-ricordi').style.display = 'none';
+            
+            const addBtn = document.getElementById('floating-add-btn');
+            if (view === 'home' || (view === 'ricordi' && selectedDay === 'all')) {
+                addBtn.style.display = 'none';
+            } else {
+                addBtn.style.display = 'flex';
+            }
+
+            const realToday = new Date();
+            const realWeekOffset = getWeeksSinceStart(realToday);
+            if (view === 'settimana' || view === 'ricordi') {
+                currentWeekOffset = realWeekOffset;
+                selectedDay = getTodayWeekday(); 
+            }
+
+            if (view === 'home') {
+                document.getElementById('view-home').style.display = 'flex';
+            } else {
+                document.getElementById(`view-${view}`).style.display = 'block';
+            }
+            
+            render();
+        }
+
+        function changeWeek(direction) {
+            if (currentWeekOffset === 0 && direction === -1) return;
+            currentWeekOffset += direction;
+            render();
+        }
+
+        function getWeekDates(offsetWeeks) {
+            let dates = [];
+            let monday = new Date(START_DATE);
+            monday.setDate(START_DATE.getDate() + (offsetWeeks * 7));
+            
+            for (let i = 0; i < 7; i++) {
+                let nextDay = new Date(monday);
+                nextDay.setDate(monday.getDate() + i);
+                dates.push(nextDay);
+            }
+            return dates;
+        }
+
+        function openCombinedModal() {
+            document.getElementById('goal-input-text').value = '';
+            document.getElementById('diary-text-input').value = '';
+            removeDiaryPhoto();
+            modalSelectedTargets = [];
+            
+            const typeSelectorWrapper = document.getElementById('modal-type-selector-wrapper');
+
+            if (currentView === 'ricordi') {
+                setCombinedType('diary');
+                typeSelectorWrapper.style.display = 'none';
+            } else {
+                setCombinedType('goal');
+                typeSelectorWrapper.style.display = 'flex';
+            }
+            
+            document.querySelectorAll('#combined-modal .day-option').forEach(el => el.classList.remove('selected'));
+            const daysSection = document.getElementById('modal-days-section');
+            
+            if (currentView === 'annuale') {
+                daysSection.style.display = 'none';
+            } else {
+                daysSection.style.display = 'block';
+                const targetIndex = selectedDay === 'all' ? 0 : selectedDay;
+                const options = document.querySelectorAll('#combined-modal .day-option');
+                if(options[targetIndex]) options[targetIndex].classList.add('selected');
+                modalSelectedTargets.push(selectedDay);
+            }
+            
+            document.getElementById('combined-modal').style.display = 'flex';
+        }
+
+        function closeCombinedModal() {
+            document.getElementById('combined-modal').style.display = 'none';
+        }
+
+        function setCombinedType(type) {
+            combinedModalType = type;
+            document.getElementById('type-btn-goal').classList.toggle('active', type === 'goal');
+            document.getElementById('type-btn-diary').classList.toggle('active', type === 'diary');
+            document.getElementById('sub-form-goal').style.display = type === 'goal' ? 'block' : 'none';
+            document.getElementById('sub-form-diary').style.display = type === 'diary' ? 'block' : 'none';
+        }
+
+        function toggleModalDay(target, element) {
+            if (modalSelectedTargets.includes(target)) {
+                modalSelectedTargets = modalSelectedTargets.filter(t => t !== target);
+                element.classList.remove('selected');
+            } else {
+                modalSelectedTargets.push(target);
+                element.classList.add('selected');
+            }
+        }
+
+        function confirmCombinedSave() {
+            if (combinedModalType === 'goal') {
+                let title = document.getElementById('goal-input-text').value.trim();
+                if (!title) return;
+
+                if (currentView === 'annuale') {
+                    goals.push({
+                        id: Date.now(), title: title, timeframe: 'annuale', day: null, year: selectedYear, weekOffset: null, status: 'pending', completed: false, notes: ""
+                    });
+                } else {
+                    if (modalSelectedTargets.length === 0) modalSelectedTargets.push(selectedDay);
+                    modalSelectedTargets.forEach((target, index) => {
+                        let timeframe = target === 'all' ? 'settimana' : 'giornaliero';
+                        let dayValue = target === 'all' ? null : target;
+                        goals.push({
+                            id: Date.now() + index, title: title, timeframe: timeframe, day: dayValue, year: null, weekOffset: currentWeekOffset, status: 'pending', completed: false, notes: ""
+                        });
+                    });
+                }
+                save();
+            } else {
+                const key = `w_${currentWeekOffset}_d_${selectedDay}`;
+                const text = document.getElementById('diary-text-input').value.trim();
+                if (!text && !tempPhotoBase64) return;
+                
+                diaryEntries.push({
+                    id: Date.now(), key: key, text: text, photo: tempPhotoBase64
+                });
+                
+                localStorage.setItem('diary_v9_hybrid', JSON.stringify(diaryEntries));
+                render();
+            }
+            closeCombinedModal();
+        }
+
+        // CICLO DI STATO A 3 POSIZIONI (Pending -> Completed -> Failed -> Pending)
+        function toggleGoal(id, e) {
+            e.stopPropagation();
+            let goal = goals.find(g => g.id === id);
+            if (goal) {
+                if (!goal.status) {
+                    goal.status = goal.completed ? 'completed' : 'pending';
+                }
+                
+                if (goal.status === 'pending') {
+                    goal.status = 'completed';
+                    goal.completed = true;
+                } else if (goal.status === 'completed') {
+                    goal.status = 'failed';
+                    goal.completed = false;
+                } else {
+                    goal.status = 'pending';
+                    goal.completed = false;
+                }
+                save();
+            }
+        }
+
+        function updateNotes(id, text) {
+            let goal = goals.find(g => g.id === id);
+            if (goal) {
+                goal.notes = text;
+                localStorage.setItem('goals_v9_hybrid', JSON.stringify(goals));
+            }
+        }
+
+        function openMoveModal(id, e) {
+            e.stopPropagation();
+            goalIdToMove = id;
+            selectedMoveTarget = null;
+            document.querySelectorAll('.move-opt').forEach(el => el.classList.remove('selected'));
+            document.getElementById('move-modal').style.display = 'flex';
+        }
+
+        function closeMoveModal() { document.getElementById('move-modal').style.display = 'none'; }
+
+        function selectMoveTarget(target, element) {
+            document.querySelectorAll('.move-opt').forEach(el => el.classList.remove('selected'));
+            selectedMoveTarget = target;
+            element.classList.add('selected');
+        }
+
+        function confirmMoveGoal() {
+            if (selectedMoveTarget === null || goalIdToMove === null) return;
+            let goal = goals.find(g => g.id === goalIdToMove);
+            if (goal) {
+                if (selectedMoveTarget === 'all') {
+                    goal.timeframe = 'settimana';
+                    goal.day = null;
+                } else {
+                    goal.timeframe = 'giornaliero';
+                    goal.day = selectedMoveTarget;
+                }
+                save();
+            }
+            closeMoveModal();
+        }
+
+        function deleteGoal(id, e) {
+            e.stopPropagation();
+            goals = goals.filter(g => g.id !== id);
+            save();
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                tempPhotoBase64 = e.target.result;
+                document.getElementById('diary-img-preview').src = tempPhotoBase64;
+                document.getElementById('diary-media-box').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeDiaryPhoto() {
+            tempPhotoBase64 = "";
+            document.getElementById('diary-img-preview').src = "";
+            document.getElementById('diary-media-box').style.display = 'none';
+            document.getElementById('file-photo-input').value = "";
+        }
+
+        function deleteDiaryEntry(id) {
+            diaryEntries = diaryEntries.filter(e => e.id !== id);
+            localStorage.setItem('diary_v9_hybrid', JSON.stringify(diaryEntries));
+            render();
+        }
+
+        function openLightbox(src) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('photo-lightbox').style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            document.getElementById('photo-lightbox').style.display = 'none';
+        }
+
+        function toggleItemOpen(element) {
+            element.classList.toggle('open');
+        }
+
+        // ----------------- RENDERING E LOGICA CLASSIFICA -----------------
+        function render() {
+            const realToday = new Date();
+            const realWeekOffset = getWeeksSinceStart(realToday);
+
+            const weekDates = getWeekDates(currentWeekOffset);
+            const mondayDate = weekDates[0];
+            const sundayDate = weekDates[6];
+            
+            // MODIFICA 1: Rimosso il conteggio della settimana "Sett. X"
+            const rangeString = `${mondayDate.getDate()} ${monthsNames[mondayDate.getMonth()]} - ${sundayDate.getDate()} ${monthsNames[sundayDate.getMonth()]} ${sundayDate.getFullYear()}`;
+            
+            if (document.getElementById('main-title')) {
+                document.getElementById('main-title').innerText = rangeString;
+            }
+            if (document.getElementById('main-title-diary')) {
+                document.getElementById('main-title-diary').innerText = rangeString;
+            }
+
+            // --- AGGIORNAMENTO DELLA CLASSIFICA SULLA HOME ---
+            if (currentView === 'home') {
+                const leaderboardList = document.getElementById('leaderboard-list');
+                
+                // Raccogliamo solo gli obiettivi delle settimane PASSATE che non sono stati completati (falliti o dimenticati)
+                const missedMap = {};
+                goals.forEach(g => {
+                    if (g.timeframe !== 'annuale' && g.weekOffset < realWeekOffset) {
+                        const isFailed = (g.status === 'failed') || (!g.completed && g.status === 'pending') || (!g.completed && !g.status);
+                        if (isFailed) {
+                            const titleNorm = g.title.trim();
+                            missedMap[titleNorm] = (missedMap[titleNorm] || 0) + 1;
+                        }
+                    }
+                });
+
+                // Ordiniamo la classifica dal più fallito al meno fallito
+                const sortedMissed = Object.keys(missedMap)
+                    .map(title => ({ title: title, count: missedMap[title] }))
+                    .sort((a, b) => b.count - a.count);
+
+                leaderboardList.innerHTML = '';
+                if (sortedMissed.length === 0) {
+                    leaderboardList.innerHTML = '<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px 0;">Ottimo lavoro! Nessun obiettivo fallito nelle settimane passate.</div>';
+                } else {
+                    sortedMissed.slice(0, 5).forEach(item => { // Mostra i top 5 obiettivi mancati
+                        leaderboardList.innerHTML += `
+                            <div class="leaderboard-item">
+                                <span>${item.title}</span>
+                                <span class="leaderboard-count">${item.count} volte</span>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+            // --- GESTIONE SEZIONE SETTIMANALE ---
+            if (currentView === 'settimana') {
+                const selector = document.getElementById('selector-container-week');
+                selector.innerHTML = `<div class="selector-card ${selectedDay === 'all' ? 'active' : ''}" onclick="selectedDay='all'; render();">Settimana</div>`;
+                
+                weekDates.forEach((date, i) => {
+                    const dayNum = i + 1;
+                    const isToday = date.toDateString() === (new Date()).toDateString();
+                    selector.innerHTML += `
+                        <div class="selector-card ${selectedDay === dayNum ? 'active' : ''} ${isToday ? 'today' : ''}" onclick="selectedDay=${dayNum}; render();">
+                            ${daysNames[i]}<br><strong>${date.getDate()}</strong>
+                        </div>
+                    `;
+                });
+
+                const filtered = goals.filter(g => 
+                    g.weekOffset === currentWeekOffset && 
+                    ((selectedDay === 'all' && g.timeframe === 'settimana') || (selectedDay !== 'all' && g.timeframe === 'giornaliero' && g.day === selectedDay))
+                );
+
+                const listTitle = document.getElementById('list-title-week');
+                listTitle.innerText = selectedDay === 'all' ? "Obiettivi Generali Settimana" : `Obiettivi di ${fullDaysNames[selectedDay - 1]}`;
+
+                const listContainer = document.getElementById('goals-list-week');
+                listContainer.innerHTML = '';
+                
+                if (filtered.length === 0) {
+                    listContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Nessun obiettivo impostato.</div>';
+                } else {
+                    filtered.forEach(g => {
+                        // Determiniamo la classe CSS per il testo e per la checkbox
+                        let checkboxStatusClass = '';
+                        let textStatusClass = '';
+                        const currentStatus = g.status || (g.completed ? 'completed' : 'pending');
+
+                        if (currentStatus === 'completed') {
+                            checkboxStatusClass = 'completed';
+                            textStatusClass = 'done';
+                        } else if (currentStatus === 'failed') {
+                            checkboxStatusClass = 'failed';
+                            textStatusClass = 'failed-text';
+                        }
+
+                        listContainer.innerHTML += `
+                            <div class="item" onclick="toggleItemOpen(this)">
+                                <div class="item-main">
+                                    <div class="checkbox ${checkboxStatusClass}" onclick="toggleGoal(${g.id}, event)"></div>
+                                    <div class="item-text ${textStatusClass}">${g.title}</div>
+                                </div>
+                                <div class="action-panel" onclick="event.stopPropagation()">
+                                    <textarea class="notes-area" placeholder="Aggiungi note..." oninput="updateNotes(${g.id}, this.value)">${g.notes || ''}</textarea>
+                                    <div class="btn-group">
+                                        <button class="action-btn move" onclick="openMoveModal(${g.id}, event)">Sposta</button>
+                                        <button class="action-btn delete" onclick="deleteGoal(${g.id}, event)">Elimina</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                // Calcolo progressi
+                const weekAllGoals = goals.filter(g => g.weekOffset === currentWeekOffset);
+                const completed = weekAllGoals.filter(g => g.completed || g.status === 'completed').length;
+                const total = weekAllGoals.length;
+                const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+                
+                document.getElementById('progress-text').innerText = `Progressi settimana: ${completed} / ${total} completati (${percent}%)`;
+                document.getElementById('progress-fill').style.width = `${percent}%`;
+            }
+
+            // --- GESTIONE SEZIONE ANNUALE ---
+            if (currentView === 'annuale') {
+                const selector = document.getElementById('selector-container-year');
+                selector.innerHTML = '';
+                yearsList.forEach(y => {
+                    selector.innerHTML += `
+                        <div class="selector-card ${selectedYear === y ? 'active' : ''}" onclick="selectedYear=${y}; render();">
+                            ${y}
+                        </div>
+                    `;
+                });
+
+                const filtered = goals.filter(g => g.timeframe === 'annuale' && g.year === selectedYear);
+                document.getElementById('list-title-year').innerText = `Obiettivi del ${selectedYear}`;
+
+                const listContainer = document.getElementById('goals-list-year');
+                listContainer.innerHTML = '';
+                
+                if (filtered.length === 0) {
+                    listContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Nessun obiettivo per questo anno.</div>';
+                } else {
+                    filtered.forEach(g => {
+                        let checkboxStatusClass = '';
+                        let textStatusClass = '';
+                        const currentStatus = g.status || (g.completed ? 'completed' : 'pending');
+
+                        if (currentStatus === 'completed') {
+                            checkboxStatusClass = 'completed';
+                            textStatusClass = 'done';
+                        } else if (currentStatus === 'failed') {
+                            checkboxStatusClass = 'failed';
+                            textStatusClass = 'failed-text';
+                        }
+
+                        listContainer.innerHTML += `
+                            <div class="item" onclick="toggleItemOpen(this)">
+                                <div class="item-main">
+                                    <div class="checkbox ${checkboxStatusClass}" onclick="toggleGoal(${g.id}, event)"></div>
+                                    <div class="item-text ${textStatusClass}">${g.title}</div>
+                                </div>
+                                <div class="action-panel" onclick="event.stopPropagation()">
+                                    <textarea class="notes-area" placeholder="Aggiungi note..." oninput="updateNotes(${g.id}, this.value)">${g.notes || ''}</textarea>
+                                    <div class="btn-group">
+                                        <button class="action-btn delete" style="width: 100%;" onclick="deleteGoal(${g.id}, event)">Elimina</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+            // --- GESTIONE SEZIONE RICORDI ---
+            if (currentView === 'ricordi') {
+                const selector = document.getElementById('selector-container-diary');
+                selector.innerHTML = '';
+                
+                weekDates.forEach((date, i) => {
+                    const dayNum = i + 1;
+                    const isToday = date.toDateString() === (new Date()).toDateString();
+                    selector.innerHTML += `
+                        <div class="selector-card ${selectedDay === dayNum ? 'active' : ''} ${isToday ? 'today' : ''}" onclick="selectedDay=${dayNum}; render();">
+                            ${daysNames[i]}<br><strong>${date.getDate()}</strong>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('diary-section-title').innerText = `Ricordi di ${fullDaysNames[selectedDay - 1]}`;
+                
+                const key = `w_${currentWeekOffset}_d_${selectedDay}`;
+                const filteredDiary = diaryEntries.filter(e => e.key === key);
+                const savedContainer = document.getElementById('saved-entries-container');
+                savedContainer.innerHTML = '';
+
+                if (filteredDiary.length === 0) {
+                    savedContainer.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 10px 0;">Ancora nessun ricordo per oggi. Clicca il tasto "+" per aggiungerne uno!</div>';
+                } else {
+                    filteredDiary.forEach(entry => {
+                        let imgHtml = entry.photo ? `<img src="${entry.photo}" onclick="openLightbox('${entry.photo}')">` : '';
+                        savedContainer.innerHTML += `
+                            <div class="saved-entry-card">
+                                <button class="delete-entry-btn" onclick="deleteDiaryEntry(${entry.id})">✕</button>
+                                <div class="saved-entry-text">${entry.text || ''}</div>
+                                ${imgHtml}
+                            </div>
+                        `;
+                    });
+                }
+            }
+        }
+
+        // ----------------- INIZIALIZZAZIONE ALL'AVVIO -----------------
+        window.onload = function() {
+            setupLiveDate();
+            navigateTo('home');
+        };
+    </script>
+</body>
+</html>
